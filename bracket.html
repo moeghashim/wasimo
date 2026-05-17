@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hand Tournament — Bracket</title>
+    <link rel="stylesheet" href="assets/css/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="brand" href="./">Hand Tournament</a>
+        <nav>
+          <a href="./">Sign Up</a>
+          <a href="./bracket.html" aria-current="page">Bracket</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <section class="hero">
+        <h1>Bracket</h1>
+        <p id="status-line" class="lede muted">Loading teams…</p>
+        <div class="bracket-controls">
+          <button id="draw-btn" class="btn-primary" hidden>Draw bracket (random)</button>
+          <button id="reset-btn" class="btn-ghost" hidden>Reset bracket</button>
+          <button id="export-btn" class="btn-ghost" hidden>Export results (JSON)</button>
+          <button id="refresh-btn" class="btn-ghost">Refresh teams</button>
+        </div>
+      </section>
+
+      <section id="signup-list" class="card" hidden>
+        <h2>Confirmed teams</h2>
+        <ol id="signup-list-items" class="signup-list"></ol>
+      </section>
+
+      <section id="bracket-section" class="card" hidden>
+        <h2>Knockout bracket</h2>
+        <p class="muted">Click a team in each match to mark them as the winner. Round of 16 is best of 3 — winners advance only after they take 2 games.</p>
+        <div id="bracket" class="bracket"></div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <span class="muted">Hand Tournament</span>
+      </div>
+    </footer>
+
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/bracket.js"></script>
+  </body>
+</html>

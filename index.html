@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hand Tournament — Sign Up</title>
+    <meta name="description" content="Sign up your team for the Hand card game tournament. 16 teams, round of 16 best of 3, then single-elimination knockout." />
+    <link rel="stylesheet" href="assets/css/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="brand" href="./">Hand Tournament</a>
+        <nav>
+          <a href="./">Sign Up</a>
+          <a href="./bracket.html">Bracket</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <section class="hero">
+        <h1>16-Team Hand Tournament</h1>
+        <p class="lede">
+          Round of 16 is <strong>best of 3</strong>. Quarterfinals, semifinals
+          and final are <strong>single game knockout</strong>. First 16
+          confirmed teams are in.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>Register your team</h2>
+        <p class="muted">
+          One person per team submits. We'll contact the captain with the draw
+          and schedule.
+        </p>
+
+        <form id="signup-form" novalidate>
+          <div class="field">
+            <label for="teamName">Team name</label>
+            <input id="teamName" name="teamName" type="text" required maxlength="60" autocomplete="off" />
+          </div>
+
+          <div class="field">
+            <label for="captainName">Captain name</label>
+            <input id="captainName" name="captainName" type="text" required maxlength="80" autocomplete="name" />
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" required maxlength="120" autocomplete="email" />
+            </div>
+            <div class="field">
+              <label for="phone">Phone</label>
+              <input id="phone" name="phone" type="tel" required maxlength="40" autocomplete="tel" placeholder="+961 ..." />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="partnerName">Partner name <span class="muted">(optional)</span></label>
+            <input id="partnerName" name="partnerName" type="text" maxlength="80" autocomplete="off" />
+          </div>
+
+          <button id="submit-btn" type="submit" class="btn-primary">Register team</button>
+          <p id="form-status" class="form-status" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>How it works</h2>
+        <ol class="steps">
+          <li><strong>Sign up</strong> — the first 16 teams to confirm are in.</li>
+          <li><strong>Random draw</strong> — bracket is generated automatically.</li>
+          <li><strong>Round of 16</strong> — best of 3.</li>
+          <li><strong>Quarterfinals → Final</strong> — single game knockout.</li>
+        </ol>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <span class="muted">Hand Tournament</span>
+      </div>
+    </footer>
+
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/signup.js"></script>
+  </body>
+</html>
