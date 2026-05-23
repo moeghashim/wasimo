@@ -4,7 +4,8 @@ Static site for running a 16-team Hand card game tournament. Hosted on
 GitHub Pages, backed by a Google Sheet via a small Apps Script bridge.
 
 - `index.html` — public team signup form with required tournament terms agreement.
-- `bracket.html` — pulls confirmed teams from the sheet, random draw, click-to-advance bracket. Round of 16 is best of 3; quarterfinals → final are single-game knockout.
+- `bracket.html` — public read-only bracket page that loads the published admin bracket.
+- `admin.html` — admin bracket page for drawing, resetting, exporting, publishing, and click-to-advance results. Round of 16 is best of 3; quarterfinals → final are single-game knockout.
 - `apps-script/Code.gs` — Apps Script that receives signups and exposes the team list.
 - `assets/js/config.js` — paste your Apps Script Web App URL here.
 
@@ -45,10 +46,16 @@ On GitHub: **Settings → Pages → Build and deployment**. Set:
 Save. After a minute the site will be live at
 <https://moeghashim.github.io/wasimo/>.
 
+Public bracket link:
+<https://moeghashim.github.io/wasimo/bracket.html>
+
+Admin bracket link:
+<https://moeghashim.github.io/wasimo/admin.html>
+
 ## Day-of-tournament flow
 
 1. Share the signup URL. Teams register with name, captain, email, phone, and agreement to the tournament terms.
-2. When 16 confirmed teams are in the sheet, open the bracket page and click **Draw bracket (random)**.
+2. When 16 confirmed teams are in the sheet, open the admin page and click **Draw bracket (random)**. The public bracket page will load the published draw and results.
 3. As matches finish, click the winner in each match card. Round of 16 cards track game wins (best of 3 — first to 2 advances).
 4. **Export results (JSON)** at any point for an archive.
 

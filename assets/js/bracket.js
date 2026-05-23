@@ -2,6 +2,8 @@
   const cfg = window.TOURNAMENT_CONFIG || {};
   const TEAMS_NEEDED = cfg.teamsNeeded || 16;
   const STORAGE_KEY = "wasimo.bracket.v1";
+  const scriptEl = document.currentScript;
+  const IS_ADMIN = scriptEl && scriptEl.dataset.admin === "true";
 
   const statusLine = document.getElementById("status-line");
   const drawBtn = document.getElementById("draw-btn");
@@ -17,6 +19,7 @@
   let state = loadState();
 
   function loadState() {
+    if (!IS_ADMIN) return null;
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return null;
@@ -30,11 +33,45 @@
   function saveState() {
     if (!state) return;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    publishState(state);
   }
 
   function clearState() {
     state = null;
     localStorage.removeItem(STORAGE_KEY);
+    publishState(null);
+  }
+
+  function isValidState(obj) {
+    return !!obj && Array.isArray(obj.draw) && obj.draw.length === TEAMS_NEEDED;
+  }
+
+  async function fetchBracketState() {
+    if (!cfg.appsScriptUrl) return;
+    try {
+      const res = await fetch(cfg.appsScriptUrl + "?action=bracket", { method: "GET" });
+      const json = await res.json();
+      if (json && isValidState(json.state)) {
+        json.state.results = json.state.results || {};
+        state = json.state;
+        if (IS_ADMIN) localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } else if (!IS_ADMIN) {
+        state = null;
+      }
+    } catch (_) {
+      if (!IS_ADMIN) state = null;
+    }
+  }
+
+  function publishState(nextState) {
+    if (!IS_ADMIN || !cfg.appsScriptUrl) return;
+    fetch(cfg.appsScriptUrl, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ action: "bracket", state: nextState }),
+    }).catch(function () {
+      statusLine.textContent = "Bracket updated locally, but could not publish yet. Try Refresh teams.";
+    });
   }
 
   async function fetchTeams() {
@@ -49,6 +86,7 @@
       const json = await res.json();
       if (!json || !Array.isArray(json.teams)) throw new Error("Bad response");
       teams = json.teams;
+      await fetchBracketState();
       render();
     } catch (err) {
       statusLine.textContent = "Could not load teams: " + err.message;
@@ -85,12 +123,13 @@
     if (locked) {
       statusLine.textContent = "Bracket locked with " + TEAMS_NEEDED + " teams.";
       drawBtn.hidden = true;
-      resetBtn.hidden = false;
-      exportBtn.hidden = false;
+      resetBtn.hidden = !IS_ADMIN;
+      exportBtn.hidden = !IS_ADMIN;
     } else if (ready) {
-      statusLine.textContent =
-        TEAMS_NEEDED + " teams confirmed. Click \"Draw bracket\" to lock the bracket.";
-      drawBtn.hidden = false;
+      statusLine.textContent = IS_ADMIN
+        ? TEAMS_NEEDED + " teams confirmed. Click \"Draw bracket\" to lock the bracket."
+        : TEAMS_NEEDED + " teams confirmed. Bracket draw is not published yet.";
+      drawBtn.hidden = !IS_ADMIN;
       resetBtn.hidden = true;
       exportBtn.hidden = true;
     } else {
@@ -225,7 +264,7 @@
     if (winner === side) slot.classList.add("winner");
     else if (winner) slot.classList.add("loser");
 
-    if (!isEmpty) {
+    if (!isEmpty && IS_ADMIN) {
       slot.addEventListener("click", function () { recordWin(matchId, side); });
       slot.title = "Click to mark this team as winner";
     }
@@ -255,7 +294,7 @@
     card.appendChild(makeSlot(matchId, "b", b, w));
 
     // Reset link if results exist
-    if (state.results[matchId]) {
+    if (IS_ADMIN && state.results[matchId]) {
       const reset = document.createElement("div");
       reset.className = "match-meta";
       reset.style.justifyContent = "flex-end";
@@ -330,24 +369,26 @@
   }
 
   // ----- Wire up controls -----
-  drawBtn.addEventListener("click", drawBracket);
-  resetBtn.addEventListener("click", function () {
-    if (!confirm("Reset the bracket? This clears the draw and all results.")) return;
-    clearState();
-    render();
-  });
-  exportBtn.addEventListener("click", function () {
-    if (!state) return;
-    const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "hand-bracket-" + new Date().toISOString().slice(0, 10) + ".json";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  });
+  if (IS_ADMIN) {
+    drawBtn.addEventListener("click", drawBracket);
+    resetBtn.addEventListener("click", function () {
+      if (!confirm("Reset the bracket? This clears the draw and all results.")) return;
+      clearState();
+      render();
+    });
+    exportBtn.addEventListener("click", function () {
+      if (!state) return;
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "hand-bracket-" + new Date().toISOString().slice(0, 10) + ".json";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
+  }
   refreshBtn.addEventListener("click", fetchTeams);
 
   fetchTeams();
