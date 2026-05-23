@@ -14,7 +14,12 @@
     if (!data.teamName || data.teamName.length < 2) errs.push("Team name");
     if (!data.captainName || data.captainName.length < 2) errs.push("Captain name");
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email || "")) errs.push("Email");
-    if (!data.phone || data.phone.replace(/\D/g, "").length < 6) errs.push("Phone");
+    const phoneDigits = (data.phone || "").replace(/\D/g, "");
+    const normalizedPhone = phoneDigits.length === 11 && phoneDigits[0] === "1"
+      ? phoneDigits.slice(1)
+      : phoneDigits;
+    if (normalizedPhone.length !== 10) errs.push("Phone");
+    if (!data.termsAccepted) errs.push("Tournament terms");
     return errs;
   }
 
@@ -28,6 +33,7 @@
       email: form.email.value.trim(),
       phone: form.phone.value.trim(),
       partnerName: form.partnerName.value.trim(),
+      termsAccepted: form.termsAccepted.checked,
     };
 
     const errs = validate(data);

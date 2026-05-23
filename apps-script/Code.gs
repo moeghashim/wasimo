@@ -3,7 +3,7 @@
  *
  * Receives signups from the GitHub Pages site and writes them into the
  * "Signups" sheet of the bound spreadsheet. Also exposes a GET endpoint
- * the bracket page reads to fetch confirmed teams.
+ * the bracket page reads to fetch confirmed teams and published bracket state.
  *
  * Deploy (one-time):
  *   1. Open the target Google Sheet.
@@ -16,7 +16,7 @@
  *   4. Paste that URL into assets/js/config.js as appsScriptUrl, commit & push.
  *
  * The sheet will be created/extended automatically on first signup. Header row:
- *   Timestamp | Team Name | Captain | Email | Phone | Partner | Status
+ *   Timestamp | Team Name | Captain | Email | Phone | Partner | Status | Terms Accepted | Terms Accepted At
  *
  * "Status" defaults to "confirmed". To exclude a team from the draw
  * (e.g. duplicate, no-show, didn't pay), set Status to anything other than
@@ -24,11 +24,13 @@
  */
 
 var SHEET_NAME = 'Signups';
-var HEADERS = ['Timestamp', 'Team Name', 'Captain', 'Email', 'Phone', 'Partner', 'Status'];
+var BRACKET_SHEET_NAME = 'BracketState';
+var HEADERS = ['Timestamp', 'Team Name', 'Captain', 'Email', 'Phone', 'Partner', 'Status', 'Terms Accepted', 'Terms Accepted At'];
 
 function doGet(e) {
   var action = (e && e.parameter && e.parameter.action) || 'list';
   if (action === 'list') return jsonOut({ ok: true, teams: listTeams() });
+  if (action === 'bracket') return jsonOut({ ok: true, state: loadBracketState() });
   return jsonOut({ ok: false, error: 'Unknown action' });
 }
 
@@ -36,18 +38,22 @@ function doPost(e) {
   try {
     var body = JSON.parse(e.postData.contents || '{}');
     var action = body.action || 'signup';
-    if (action !== 'signup') {
-      return jsonOut({ ok: false, error: 'Unknown action' });
-    }
+    if (action === 'bracket') return saveBracketState(body.state || null);
+    if (action !== 'signup') return jsonOut({ ok: false, error: 'Unknown action' });
+
     var p = body.payload || {};
     var teamName = clean(p.teamName);
     var captain  = clean(p.captainName);
     var email    = clean(p.email);
     var phone    = clean(p.phone);
     var partner  = clean(p.partnerName);
+    var termsAccepted = p.termsAccepted === true;
 
     if (!teamName || !captain || !email || !phone) {
       return jsonOut({ ok: false, error: 'Missing required fields' });
+    }
+    if (!termsAccepted) {
+      return jsonOut({ ok: false, error: 'Tournament terms must be accepted' });
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return jsonOut({ ok: false, error: 'Invalid email' });
@@ -65,7 +71,8 @@ function doPost(e) {
       }
     }
 
-    sheet.appendRow([new Date(), teamName, captain, email, phone, partner, 'confirmed']);
+    var now = new Date();
+    sheet.appendRow([now, teamName, captain, email, phone, partner, 'confirmed', true, now]);
     var position = countConfirmed(sheet);
     return jsonOut({ ok: true, position: position });
   } catch (err) {
@@ -83,6 +90,13 @@ function ensureSheet() {
   } else if (sheet.getLastRow() === 0) {
     sheet.appendRow(HEADERS);
     sheet.setFrozenRows(1);
+  } else {
+    var currentHeaders = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), HEADERS.length)).getValues()[0];
+    for (var i = 0; i < HEADERS.length; i++) {
+      if (!currentHeaders[i]) {
+        sheet.getRange(1, i + 1).setValue(HEADERS[i]);
+      }
+    }
   }
   return sheet;
 }
@@ -114,6 +128,36 @@ function listTeams() {
     });
   }
   return out;
+}
+
+function saveBracketState(state) {
+  var sheet = ensureBracketSheet();
+  var json = state ? JSON.stringify(state) : '';
+  sheet.getRange(2, 1, 1, 2).setValues([[new Date(), json]]);
+  return jsonOut({ ok: true });
+}
+
+function loadBracketState() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(BRACKET_SHEET_NAME);
+  if (!sheet || sheet.getLastRow() < 2) return null;
+  var raw = String(sheet.getRange(2, 2).getValue() || '');
+  if (!raw) return null;
+  return JSON.parse(raw);
+}
+
+function ensureBracketSheet() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(BRACKET_SHEET_NAME);
+  if (!sheet) {
+    sheet = ss.insertSheet(BRACKET_SHEET_NAME);
+    sheet.appendRow(['Updated At', 'State JSON']);
+    sheet.setFrozenRows(1);
+  } else if (sheet.getLastRow() === 0) {
+    sheet.appendRow(['Updated At', 'State JSON']);
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
 }
 
 function clean(v) {
