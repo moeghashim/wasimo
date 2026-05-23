@@ -4,7 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Hand Tournament — Sign Up</title>
-    <meta name="description" content="Sign up your team for the Hand card game tournament. 16 teams, round of 16 best of 3, then single-elimination knockout." />
+    <meta name="description" content="Sign up your team for the Saudi Hand card game tournament. 16 teams, $100 entry fee, first come first served." />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230e1116'/%3E%3Crect x='18' y='12' width='28' height='40' rx='4' fill='%23f0b429'/%3E%3Ccircle cx='32' cy='32' r='7' fill='%230e1116'/%3E%3C/svg%3E" />
     <link rel="stylesheet" href="assets/css/styles.css" />
   </head>
   <body>
@@ -13,18 +14,26 @@
         <a class="brand" href="./">Hand Tournament</a>
         <nav>
           <a href="./">Sign Up</a>
+          <a href="./bracket.html">Public Bracket</a>
         </nav>
       </div>
     </header>
 
     <main class="wrap">
       <section class="hero">
+        <div class="eyebrow">Saudi Hand Championship</div>
         <h1>16-Team Hand Tournament</h1>
         <p class="lede">
-          Round of 16 is <strong>best of 3</strong>. Quarterfinals, semifinals
-          and final are <strong>single game knockout</strong>. First 16
-          confirmed teams are in.
+          Gather your partner, bring your strategy, and claim your spot.
+          Registration is first come, first served for <strong>16 teams</strong>
+          of two players.
         </p>
+        <div class="hero-facts" aria-label="Tournament details">
+          <span>$100 entry fee</span>
+          <span>Team play</span>
+          <span>2 players per team</span>
+          <span>Saudi Hand</span>
+        </div>
       </section>
 
       <section class="card">
@@ -51,7 +60,7 @@
               <input id="email" name="email" type="email" required maxlength="120" autocomplete="email" />
             </div>
             <div class="field">
-              <label for="phone">Phone</label>
+              <label for="phone">Phone <span class="whatsapp-note">WhatsApp preferred</span></label>
               <input id="phone" name="phone" type="tel" required maxlength="20" autocomplete="tel-national" inputmode="tel" placeholder="(555) 123-4567" />
             </div>
           </div>
@@ -60,6 +69,64 @@
             <label for="partnerName">Partner name <span class="muted">(optional)</span></label>
             <input id="partnerName" name="partnerName" type="text" maxlength="80" autocomplete="off" />
           </div>
+
+          <section class="terms-panel" aria-labelledby="terms-title">
+            <div class="terms-header">
+              <div>
+                <p class="section-kicker">Required before registering</p>
+                <h3 id="terms-title">Official tournament terms</h3>
+              </div>
+              <span class="fee-badge">$100 entry</span>
+            </div>
+
+            <div class="terms-grid">
+              <article class="rule-group">
+                <h4>Tournament Details</h4>
+                <ul>
+                  <li>16 teams, with 2 players per team.</li>
+                  <li>Team play format for Saudi Hand.</li>
+                  <li>Spots are first come, first served.</li>
+                  <li>After 9 complete rounds, each team's combined score becomes the final team score. The team with the lower score wins.</li>
+                </ul>
+              </article>
+
+              <article class="rule-group">
+                <h4>Going Down</h4>
+                <ul>
+                  <li>71 points is the minimum required to go down, then it progresses for each player who wants to go down.</li>
+                  <li>If you go down with less than the required total, your hand is dead.</li>
+                  <li>You may go down after your second pull.</li>
+                  <li>You can use another player's joker and finish your cards regardless of your total.</li>
+                </ul>
+              </article>
+
+              <article class="rule-group">
+                <h4>Dead Hands and Redeals</h4>
+                <ul>
+                  <li>If your hand is dead, you keep your cards, keep playing regularly, and the next player can pull a card you throw.</li>
+                  <li>Anytime you have more or less than 14 cards, your hand is dead and considered not down.</li>
+                  <li>If you have 4 doubles, or 3 doubles and a joker, only after your first pull you may ask for a redeal.</li>
+                  <li>If there is a fresh tie, the same player deals again.</li>
+                </ul>
+              </article>
+
+              <article class="rule-group">
+                <h4>Jokers, Conduct, and Officials</h4>
+                <ul>
+                  <li>Joker is joker: fully wild, with no restrictions unless agreed before play.</li>
+                  <li>If a joker is exposed during a cut misdeal, the player who receives the joker keeps it.</li>
+                  <li>You must mention when you have only 3 cards and when you have only 1 card.</li>
+                  <li>No signaling, verbal assistance, hints, or bystander influence is allowed.</li>
+                  <li>Disputes are resolved by the official, whose decision is final.</li>
+                </ul>
+              </article>
+            </div>
+
+            <label class="terms-check" for="termsAccepted">
+              <input id="termsAccepted" name="termsAccepted" type="checkbox" required />
+              <span>I have read and agree to the tournament terms and official rules for my team.</span>
+            </label>
+          </section>
 
           <button id="submit-btn" type="submit" class="btn-primary">Register team</button>
           <p id="form-status" class="form-status" role="status" aria-live="polite"></p>
