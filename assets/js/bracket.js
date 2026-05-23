@@ -151,25 +151,25 @@
 
     if (locked) {
       statusLine.innerHTML = demoBadge + "Bracket locked with " + TEAMS_NEEDED + " teams.";
-      drawBtn.hidden = true;
-      resetBtn.hidden = !IS_ADMIN;
-      exportBtn.hidden = !IS_ADMIN;
+      if (drawBtn) drawBtn.hidden = true;
+      if (resetBtn) resetBtn.hidden = !IS_ADMIN;
+      if (exportBtn) exportBtn.hidden = !IS_ADMIN;
     } else if (ready) {
       statusLine.innerHTML = demoBadge + (IS_ADMIN
         ? TEAMS_NEEDED + " teams confirmed. Click \"Draw bracket\" to lock the bracket."
         : TEAMS_NEEDED + " teams confirmed. Bracket draw is not published yet.");
-      drawBtn.hidden = !IS_ADMIN;
-      resetBtn.hidden = true;
-      exportBtn.hidden = true;
+      if (drawBtn) drawBtn.hidden = !IS_ADMIN;
+      if (resetBtn) resetBtn.hidden = true;
+      if (exportBtn) exportBtn.hidden = true;
     } else {
       const missing = TEAMS_NEEDED - teams.length;
       statusLine.innerHTML =
         demoBadge +
         teams.length + " of " + TEAMS_NEEDED + " teams signed up. Need " +
         missing + " more to draw the bracket.";
-      drawBtn.hidden = true;
-      resetBtn.hidden = true;
-      exportBtn.hidden = true;
+      if (drawBtn) drawBtn.hidden = true;
+      if (resetBtn) resetBtn.hidden = true;
+      if (exportBtn) exportBtn.hidden = true;
     }
 
     bracketSection.hidden = !locked;
@@ -400,13 +400,13 @@
 
   // ----- Wire up controls -----
   if (IS_ADMIN) {
-    drawBtn.addEventListener("click", drawBracket);
-    resetBtn.addEventListener("click", function () {
+    if (drawBtn) drawBtn.addEventListener("click", drawBracket);
+    if (resetBtn) resetBtn.addEventListener("click", function () {
       if (!confirm("Reset the bracket? This clears the draw and all results.")) return;
       clearState();
       render();
     });
-    exportBtn.addEventListener("click", function () {
+    if (exportBtn) exportBtn.addEventListener("click", function () {
       if (!state) return;
       const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
@@ -419,7 +419,7 @@
       URL.revokeObjectURL(url);
     });
   }
-  refreshBtn.addEventListener("click", fetchTeams);
+  if (refreshBtn) refreshBtn.addEventListener("click", fetchTeams);
 
   fetchTeams();
 })();

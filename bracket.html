@@ -13,7 +13,6 @@
         <a class="brand" href="./">Hand Tournament</a>
         <nav>
           <a href="./">Sign Up</a>
-          <a href="./bracket.html" aria-current="page">Public Bracket</a>
         </nav>
       </div>
     </header>
@@ -26,13 +25,18 @@
           <button id="draw-btn" class="btn-primary" hidden>Draw bracket (random)</button>
           <button id="reset-btn" class="btn-ghost" hidden>Reset bracket</button>
           <button id="export-btn" class="btn-ghost" hidden>Export results (JSON)</button>
-          <button id="refresh-btn" class="btn-ghost">Refresh teams</button>
         </div>
       </section>
 
       <section id="signup-list" class="card" hidden>
         <h2>Confirmed teams</h2>
         <ol id="signup-list-items" class="signup-list"></ol>
+      </section>
+
+      <section class="signup-cta">
+        <p class="section-kicker">Ready to play?</p>
+        <h2>Register your team for the tournament</h2>
+        <a class="btn-primary btn-large" href="./">Sign Up Your Team</a>
       </section>
 
       <section id="bracket-section" class="card" hidden>
