@@ -16,7 +16,7 @@
  *   4. Paste that URL into assets/js/config.js as appsScriptUrl, commit & push.
  *
  * The sheet will be created/extended automatically on first signup. Header row:
- *   Timestamp | Team Name | Captain | Email | Phone | Partner | Status
+ *   Timestamp | Team Name | Captain | Email | Phone | Partner | Status | Terms Accepted | Terms Accepted At
  *
  * "Status" defaults to "confirmed". To exclude a team from the draw
  * (e.g. duplicate, no-show, didn't pay), set Status to anything other than
@@ -24,7 +24,7 @@
  */
 
 var SHEET_NAME = 'Signups';
-var HEADERS = ['Timestamp', 'Team Name', 'Captain', 'Email', 'Phone', 'Partner', 'Status'];
+var HEADERS = ['Timestamp', 'Team Name', 'Captain', 'Email', 'Phone', 'Partner', 'Status', 'Terms Accepted', 'Terms Accepted At'];
 
 function doGet(e) {
   var action = (e && e.parameter && e.parameter.action) || 'list';
@@ -45,9 +45,13 @@ function doPost(e) {
     var email    = clean(p.email);
     var phone    = clean(p.phone);
     var partner  = clean(p.partnerName);
+    var termsAccepted = p.termsAccepted === true;
 
     if (!teamName || !captain || !email || !phone) {
       return jsonOut({ ok: false, error: 'Missing required fields' });
+    }
+    if (!termsAccepted) {
+      return jsonOut({ ok: false, error: 'Tournament terms must be accepted' });
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return jsonOut({ ok: false, error: 'Invalid email' });
@@ -65,7 +69,8 @@ function doPost(e) {
       }
     }
 
-    sheet.appendRow([new Date(), teamName, captain, email, phone, partner, 'confirmed']);
+    var now = new Date();
+    sheet.appendRow([now, teamName, captain, email, phone, partner, 'confirmed', true, now]);
     var position = countConfirmed(sheet);
     return jsonOut({ ok: true, position: position });
   } catch (err) {
@@ -83,6 +88,13 @@ function ensureSheet() {
   } else if (sheet.getLastRow() === 0) {
     sheet.appendRow(HEADERS);
     sheet.setFrozenRows(1);
+  } else {
+    var currentHeaders = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), HEADERS.length)).getValues()[0];
+    for (var i = 0; i < HEADERS.length; i++) {
+      if (!currentHeaders[i]) {
+        sheet.getRange(1, i + 1).setValue(HEADERS[i]);
+      }
+    }
   }
   return sheet;
 }
