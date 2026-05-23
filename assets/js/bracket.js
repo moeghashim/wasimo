@@ -1,9 +1,29 @@
 (function () {
   const cfg = window.TOURNAMENT_CONFIG || {};
   const TEAMS_NEEDED = cfg.teamsNeeded || 16;
-  const STORAGE_KEY = "wasimo.bracket.v1";
+  const DEMO_MODE = new URLSearchParams(location.search).has("demo");
+  const STORAGE_KEY = DEMO_MODE ? "wasimo.bracket.v1.demo" : "wasimo.bracket.v1";
   const scriptEl = document.currentScript;
   const IS_ADMIN = scriptEl && scriptEl.dataset.admin === "true";
+
+  const DEMO_TEAMS = [
+    { teamName: "Aces Wild", captainName: "Alex" },
+    { teamName: "Bluff Masters", captainName: "Brianna" },
+    { teamName: "Card Sharks", captainName: "Carlos" },
+    { teamName: "Deck Stackers", captainName: "Dana" },
+    { teamName: "Empty Suits", captainName: "Eli" },
+    { teamName: "Full House Crew", captainName: "Fatima" },
+    { teamName: "Grand Slam", captainName: "Gabe" },
+    { teamName: "High Rollers", captainName: "Hana" },
+    { teamName: "Iron Hands", captainName: "Ibrahim" },
+    { teamName: "Jokers Wild", captainName: "Jade" },
+    { teamName: "Kings & Queens", captainName: "Kareem" },
+    { teamName: "Lucky 13", captainName: "Layla" },
+    { teamName: "Midnight Dealers", captainName: "Marco" },
+    { teamName: "No Bluffs", captainName: "Nadia" },
+    { teamName: "One-Eyed Jacks", captainName: "Omar" },
+    { teamName: "Pocket Aces", captainName: "Priya" },
+  ];
 
   const statusLine = document.getElementById("status-line");
   const drawBtn = document.getElementById("draw-btn");
@@ -75,6 +95,11 @@
   }
 
   async function fetchTeams() {
+    if (DEMO_MODE) {
+      teams = DEMO_TEAMS.slice();
+      render();
+      return;
+    }
     if (!cfg.appsScriptUrl) {
       statusLine.textContent =
         "Signup endpoint not configured yet. Add appsScriptUrl in assets/js/config.js.";
@@ -120,21 +145,26 @@
     const ready = teams.length >= TEAMS_NEEDED;
     const locked = !!state;
 
+    const demoBadge = DEMO_MODE
+      ? '<span style="background:#cf3a3a;color:#fff;padding:2px 8px;border-radius:4px;font-size:12px;letter-spacing:0.08em;margin-right:8px;">DEMO MODE</span>'
+      : "";
+
     if (locked) {
-      statusLine.textContent = "Bracket locked with " + TEAMS_NEEDED + " teams.";
+      statusLine.innerHTML = demoBadge + "Bracket locked with " + TEAMS_NEEDED + " teams.";
       drawBtn.hidden = true;
       resetBtn.hidden = !IS_ADMIN;
       exportBtn.hidden = !IS_ADMIN;
     } else if (ready) {
-      statusLine.textContent = IS_ADMIN
+      statusLine.innerHTML = demoBadge + (IS_ADMIN
         ? TEAMS_NEEDED + " teams confirmed. Click \"Draw bracket\" to lock the bracket."
-        : TEAMS_NEEDED + " teams confirmed. Bracket draw is not published yet.";
+        : TEAMS_NEEDED + " teams confirmed. Bracket draw is not published yet.");
       drawBtn.hidden = !IS_ADMIN;
       resetBtn.hidden = true;
       exportBtn.hidden = true;
     } else {
       const missing = TEAMS_NEEDED - teams.length;
-      statusLine.textContent =
+      statusLine.innerHTML =
+        demoBadge +
         teams.length + " of " + TEAMS_NEEDED + " teams signed up. Need " +
         missing + " more to draw the bracket.";
       drawBtn.hidden = true;
